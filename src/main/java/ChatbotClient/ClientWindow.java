@@ -87,13 +87,14 @@ public class ClientWindow implements ActionListener, FocusListener{
         window.add(contentPanel);
     }
 
-    private String sendRequest(String request){
+    public String sendRequest(String request){
         String query = queryParser(request);
         JSONObject jsonObject = new JSONObject(new JSONTokener(con.send(query))) ;
         return jsonParser(jsonObject);
     }
 
     private String jsonParser(JSONObject jsonObject){
+        System.out.println("test2");
         StringBuilder sb = new StringBuilder();
         sb.append(" " + jsonObject.get("response1") + "\n");
         sb.append("                " + jsonObject.get("response2") + "\n");
@@ -133,5 +134,9 @@ public class ClientWindow implements ActionListener, FocusListener{
         /*sb.append(writeText + "\n");
         sb.append("_" + sendRequest(writeText));*/
         returnDisplay.setText(sb.toString());
+    }
+
+    public String getReturnDisplay(){
+        return returnDisplay.getText();
     }
 }
