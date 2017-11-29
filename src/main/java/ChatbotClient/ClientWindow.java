@@ -12,13 +12,19 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import javax.swing.text.DefaultCaret;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class ClientWindow implements ActionListener, FocusListener{
 
     private JFrame window;
     private JPanel contentPanel;
+    private JTextArea returnDisplay;
     private Connection con;
 
     public ClientWindow(Connection con){
@@ -30,9 +36,9 @@ public class ClientWindow implements ActionListener, FocusListener{
 
     private void createWindow(){
         window = new JFrame("Chatbot client");
-        window.setMinimumSize(new Dimension(400,125));
-        window.setPreferredSize(new Dimension(400,125));
-        window.setMaximumSize(new Dimension(400,125));
+        window.setMinimumSize(new Dimension(400,600));
+        window.setPreferredSize(new Dimension(400,600));
+        window.setMaximumSize(new Dimension(400,600));
 
         window.setLocationRelativeTo(null);
 
@@ -41,24 +47,39 @@ public class ClientWindow implements ActionListener, FocusListener{
     }
 
     private void createLayout(){
-        contentPanel = new JPanel(new GridLayout(3,1));
+        contentPanel = new JPanel(new BorderLayout());
+        JPanel topContentPanel = new JPanel(new GridLayout(2,1));
         JPanel middlePanel = new JPanel();
         middlePanel.setLayout(new BorderLayout());
 
         JLabel requestLabel = new JLabel("Fråga: ");
         JTextField writeField = new JTextField();
         writeField.requestFocus();
-        JTextField returnDisplay = new JTextField();
+        writeField.grabFocus();
+        returnDisplay = new JTextArea();
+        returnDisplay.setLineWrap(true);
+        returnDisplay.setEditable(false);
+
+        JScrollPane chatAreaScrollerPane = new JScrollPane(returnDisplay);
+        chatAreaScrollerPane.setPreferredSize(new Dimension(394,475));
+        chatAreaScrollerPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        chatAreaScrollerPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        DefaultCaret caret = (DefaultCaret) returnDisplay.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         JButton sendBtn = new JButton("Send");
         window.getRootPane().setDefaultButton(sendBtn);
         sendBtn.addActionListener((ActionEvent e) -> {
-            returnDisplay.setText(sendRequest(writeField.getText()));
+            setDisplay(writeField.getText());
+            writeField.setText("");
         });
 
-        contentPanel.add(requestLabel);
-        contentPanel.add(middlePanel);
-        contentPanel.add(returnDisplay);
+        contentPanel.add(topContentPanel, BorderLayout.PAGE_START);
+        contentPanel.add(chatAreaScrollerPane, BorderLayout.CENTER);
+
+        topContentPanel.add(requestLabel);
+        topContentPanel.add(middlePanel);
 
         middlePanel.add(writeField, BorderLayout.CENTER);
         middlePanel.add(sendBtn, BorderLayout.EAST);
@@ -66,9 +87,20 @@ public class ClientWindow implements ActionListener, FocusListener{
         window.add(contentPanel);
     }
 
-    private String sendRequest(String request){
+    public String sendRequest(String request){
         String query = queryParser(request);
-        return con.send(query);
+        JSONObject jsonObject = new JSONObject(new JSONTokener(con.send(query))) ;
+        return jsonParser(jsonObject);
+    }
+
+    private String jsonParser(JSONObject jsonObject){
+        System.out.println("test2");
+        StringBuilder sb = new StringBuilder();
+        sb.append(" " + jsonObject.get("response1") + "\n");
+        sb.append("                " + jsonObject.get("response2") + "\n");
+        sb.append("                " + jsonObject.get("response3") + "\n");
+
+        return sb.toString();
     }
 
     private String queryParser(String query){
@@ -94,5 +126,17 @@ public class ClientWindow implements ActionListener, FocusListener{
     @Override
     public void focusLost(FocusEvent e) {
 
+    }
+
+    public void setDisplay(String writeText){
+        StringBuilder sb = new StringBuilder();
+        sb.append(returnDisplay.getText() + "\n" + writeText + "\n" + "Chatbot: " + sendRequest(writeText));
+        /*sb.append(writeText + "\n");
+        sb.append("_" + sendRequest(writeText));*/
+        returnDisplay.setText(sb.toString());
+    }
+
+    public String getReturnDisplay(){
+        return returnDisplay.getText();
     }
 }
