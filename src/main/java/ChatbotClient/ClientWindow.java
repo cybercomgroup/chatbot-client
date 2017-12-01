@@ -94,11 +94,12 @@ public class ClientWindow implements ActionListener, FocusListener{
     }
 
     private String jsonParser(JSONObject jsonObject){
-        System.out.println("test2");
         StringBuilder sb = new StringBuilder();
         sb.append(" " + jsonObject.get("response1") + "\n");
-        sb.append("                " + jsonObject.get("response2") + "\n");
-        sb.append("                " + jsonObject.get("response3") + "\n");
+        if(!jsonObject.get("response2").equals(null))
+            sb.append("                " + jsonObject.get("response2") + "\n");
+        if(!jsonObject.get("response3").equals(null))
+            sb.append("                " + jsonObject.get("response3") + "\n");
 
         return sb.toString();
     }
