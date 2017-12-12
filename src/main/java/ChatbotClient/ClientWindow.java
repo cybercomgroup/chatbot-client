@@ -123,9 +123,13 @@ public class ClientWindow implements ActionListener, FocusListener{
     }
 
     public void setDisplay(String writeText){
-        returnDisplay.setText(
-                (returnDisplay.getText() + "\n" + writeText + "\n" + "Chatbot: " + sendRequest(
-                        writeText)));
+        if(writeText.equals("/clear")){
+            returnDisplay.setText("");
+        }else {
+            returnDisplay.setText(
+                    (returnDisplay.getText() + "\n" + writeText + "\n" + "Chatbot: " + sendRequest(
+                            writeText)));
+        }
     }
 
     public String getReturnDisplay(){
