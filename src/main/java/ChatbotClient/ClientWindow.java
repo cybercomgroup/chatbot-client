@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.text.Normalizer;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,7 +22,6 @@ import org.json.JSONTokener;
 public class ClientWindow implements ActionListener, FocusListener{
 
     private JFrame window;
-    private JPanel contentPanel;
     private JTextArea returnDisplay;
     private Connection con;
 
@@ -47,7 +45,7 @@ public class ClientWindow implements ActionListener, FocusListener{
     }
 
     private void createLayout(){
-        contentPanel = new JPanel(new BorderLayout());
+        JPanel contentPanel = new JPanel(new BorderLayout());
         JPanel topContentPanel = new JPanel(new GridLayout(2,1));
         JPanel middlePanel = new JPanel();
         middlePanel.setLayout(new BorderLayout());
@@ -87,19 +85,15 @@ public class ClientWindow implements ActionListener, FocusListener{
         window.add(contentPanel);
     }
 
-    public String sendRequest(String request){
+    private String sendRequest(String request){
         String query = queryParser(request);
         JSONObject jsonObject = new JSONObject(new JSONTokener(con.send(query))) ;
         return jsonParser(jsonObject);
     }
 
     private String jsonParser(JSONObject jsonObject){
-        System.out.println("test2");
         StringBuilder sb = new StringBuilder();
-        sb.append(" " + jsonObject.get("response1") + "\n");
-        sb.append("                " + jsonObject.get("response2") + "\n");
-        sb.append("                " + jsonObject.get("response3") + "\n");
-
+        sb.append(" ").append(jsonObject.get("response")).append("\n");
         return sb.toString();
     }
 
@@ -129,11 +123,9 @@ public class ClientWindow implements ActionListener, FocusListener{
     }
 
     public void setDisplay(String writeText){
-        StringBuilder sb = new StringBuilder();
-        sb.append(returnDisplay.getText() + "\n" + writeText + "\n" + "Chatbot: " + sendRequest(writeText));
-        /*sb.append(writeText + "\n");
-        sb.append("_" + sendRequest(writeText));*/
-        returnDisplay.setText(sb.toString());
+        returnDisplay.setText(
+                (returnDisplay.getText() + "\n" + writeText + "\n" + "Chatbot: " + sendRequest(
+                        writeText)));
     }
 
     public String getReturnDisplay(){
